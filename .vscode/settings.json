@@ -1,0 +1,4 @@
+{
+  "appService.defaultWebAppToDeploy": "/subscriptions/0adf56f1-2ab4-49df-a1c4-0939cd738916/resourceGroups/appsvc_linux_centralus/providers/Microsoft.Web/sites/cis410-fa21-hegenderferhendlybackend",
+  "appService.deploySubpath": "."
+}
