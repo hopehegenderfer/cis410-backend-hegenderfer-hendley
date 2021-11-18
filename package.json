@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/hopehegenderfer/cis410-backend-hegenderfer-hendley#readme",
   "dependencies": {
+    "cors": "^2.8.5",
     "express": "^4.17.1"
   }
 }
