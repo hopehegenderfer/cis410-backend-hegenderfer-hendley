@@ -118,7 +118,8 @@ app.patch("/shoes/:pk", authorize, async (req,res)=>{
 app.patch("/ratings/:pk", auth, async(req, res)=>{
    
     let pk = req.params.pk;
-
+    let userID = req.member.userID;
+    
     try{
         let review = req.body.review;
         let score = req.body.score;
@@ -132,11 +133,13 @@ app.patch("/ratings/:pk", auth, async(req, res)=>{
 
         let insertQuery = `update rating
         set review = '${review}', score = '${score}', shoeFK = '${shoeFK}'
-        where postID = ${pk}`;
+        where postID = ${pk} and userID_FK = ${userID}`;
 
         let insertedReview = await db.executeQuery(insertQuery);
 
         res.status(201).send(insertedReview);
+
+        if (!insertedReview[0]){return res.status(400).send("You cannot edit this review")};
     }
     catch(err){
         console.log("error in PATCH /ratings/:pk", err);
@@ -148,6 +151,7 @@ app.patch("/ratings/:pk", auth, async(req, res)=>{
 app.patch("/member/me", auth, async (req,res)=>{
 
     member = req.member;
+    pk = req.member.userID;
 
     let firstName = req.body.firstName;
     let lastName = req.body.lastName;
@@ -162,7 +166,7 @@ app.patch("/member/me", auth, async (req,res)=>{
 
     let emailCheckQuery = `SELECT email
     from member
-    where email = '${email}'`;
+    where email = '${email}' and userID != ${pk}`;
 
     let existingUser = await db. executeQuery(emailCheckQuery);
 
