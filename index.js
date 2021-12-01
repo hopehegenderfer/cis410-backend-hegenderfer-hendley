@@ -61,7 +61,7 @@ res.status(500).send;
 
  //post route for admin users to create a new shoe record
  app.post("/shoes", authorize, async (req,res)=>{
-
+try {
     let name = req.body.name;
     let size = req.body.size;
     let cost = req.body.cost;
@@ -72,22 +72,23 @@ res.status(500).send;
 
     name = name.replace("'","''");
 
-    let insertQuery = 
-    `Insert into shoe (name,size,cost,styleFK)
-    values('${name}', '${size}', '${cost}',  '${styleFK}')`
+    let insertQuery = `Insert into shoe (name,size,cost,styleFK)
+    output inserted.name, inserted.size, inserted.cost, inserted.styleFK
+    values('${name}', '${size}', '${cost}',  '${styleFK}')`;
 
-    db.executeQuery(insertQuery)
-    .then(()=>{res.status(201).send()})
-    .catch((err)=>{
-        console.log("error in POST /shoe", err);
-        res.status(500).send();
-    })
+   let insertedShoe = await db.executeQuery(insertQuery);
+    res.status(201).send(insertedShoe[0]);
+}
+catch(err){
+    console.log("error in POST /shoes", err);
+    res.status(500).send();
+}
 
- })
+})
 
 //PATCH route for Admin to update a new shoe record
 app.patch("/shoes/:pk", authorize, async (req,res)=>{
-
+try{
     let pk = req.params.pk
 
     let name = req.body.name;
@@ -103,15 +104,17 @@ app.patch("/shoes/:pk", authorize, async (req,res)=>{
     let insertQuery = 
     `update shoe
     set name = '${name}', size = '${size}', cost = '${cost}', styleFK = '${styleFK}'
+    output inserted.name, inserted.size, inserted.cost, inserted.styleFK
     where shoeID = ${pk}`
 
-    db.executeQuery(insertQuery)
-    .then(()=>{res.status(201).send()})
-    .catch((err)=>{
+   let updatedShoe =  await db.executeQuery(insertQuery)
+    
+    res.status(201).send(updatedShoe[0]);
+}
+    catch(err){
         console.log("error in POST /shoe", err);
         res.status(500).send();
-    })
-
+    }
  })
 
 //PATCH route for user to update their review
@@ -133,11 +136,12 @@ app.patch("/ratings/:pk", auth, async(req, res)=>{
 
         let insertQuery = `update rating
         set review = '${review}', score = '${score}', shoeFK = '${shoeFK}'
+        output inserted.review, inserted.score, inserted.shoeFK
         where postID = ${pk} and userID_FK = ${userID}`;
 
         let insertedReview = await db.executeQuery(insertQuery);
 
-        res.status(201).send(insertedReview);
+        res.status(201).send(insertedReview[0]);
 
         if (!insertedReview[0]){return res.status(400).send("You cannot edit this review")};
     }
@@ -150,6 +154,7 @@ app.patch("/ratings/:pk", auth, async(req, res)=>{
 //PATCH route for users to update their information
 app.patch("/member/me", auth, async (req,res)=>{
 
+    try{
     member = req.member;
     pk = req.member.userID;
 
@@ -177,14 +182,16 @@ app.patch("/member/me", auth, async (req,res)=>{
     let insertQuery = 
     `update Member
     set firstName = '${firstName}', lastName = '${lastName}', email ='${email}', password = '${hashedPassword}'
+    output inserted.firstName, inserted.lastName, inserted.email, inserted.password
     where userID = ${member.userID}`
 
-    db.executeQuery(insertQuery)
-    .then(()=>{res.status(201).send()})
-    .catch((err)=>{
+    updatedMember = await db.executeQuery(insertQuery)
+    res.status(201).send(updatedMember[0])
+}
+    catch(err){
         console.log("error in PATCH/member/me/update", err);
         res.status(500).send();
-    })
+    }
 })
 
 
