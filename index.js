@@ -47,6 +47,8 @@ res.status(500).send;
 //     //2 query the database for users records
         let insertQuery = `select * 
         from Rating
+        LEFT JOIN Style 
+    ON Style.StyleID = Rating.shoeFK
         where userID_FK = ${pk}`
 //     //3 send users reviews back to them
         db.executeQuery(insertQuery)
