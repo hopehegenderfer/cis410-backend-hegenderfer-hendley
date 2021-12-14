@@ -283,7 +283,8 @@ try{
            firstName: user.firstName,
            lastName: user.lastName,
            email: user.email,
-           userID: user.userID, 
+           userID: user.userID,
+           roleType: user.RoleType, 
        },
    });
 }
